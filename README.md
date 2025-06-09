@@ -1,6 +1,3 @@
-from pathlib import Path
-
-readme_content = """
 # The Spider Project: An Ethical and Intelligent Web Crawler Framework
 
 **Author:** Dr. Eric O. Flores  
