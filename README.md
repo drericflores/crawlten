@@ -35,8 +35,8 @@ The Spider Project exemplifies how intelligent crawling, ethical standards, and 
 ---
 
 **Contact:** Dr. Eric O. Flores  
-📧 [eric.o.flores@protonmail.com](mailto:eric.o.flores@protonmail.com)  
-📂 [Project Repository](https://github.com/ericflores/spider-crawler)
+📧 [eoftoro@gmail.com](mailto:eoftoro@gmail.com)  
+📂 [Project Repository](https://github.com/drericflores/crawlten)
 """
 
 readme_path = Path("/mnt/data/README.md")
