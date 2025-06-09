@@ -6,6 +6,8 @@ readme_content = """
 **Author:** Dr. Eric O. Flores  
 **Date:** June 9, 2025  
 
+**Note:** "The original code file name as "spider" in version 10 I changed the file name to crawlten.py"
+
 The Spider Project is a modular, intelligent web crawler designed for automated content retrieval and domain-specific exploration across the World Wide Web. Developed through a rigorous iterative process, the system evolved from a basic GUI-enabled downloader into a sophisticated autonomous crawler capable of ethically navigating web resources while applying intelligent heuristics and memory-based decision making.
 
 The primary purpose of the Spider framework is to provide users with an efficient and semi-autonomous tool for discovering and downloading specific digital file types (e.g., PDF, MP3, MPEG, DOCX) from known or search-derived web domains. Built with Python and integrated into a user-friendly Tkinter graphical interface, the crawler is accessible to non-programmers while retaining advanced capabilities for developers and analysts.
