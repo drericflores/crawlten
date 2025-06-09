@@ -37,7 +37,3 @@ The Spider Project exemplifies how intelligent crawling, ethical standards, and 
 **Contact:** Dr. Eric O. Flores  
 📧 [eoftoro@gmail.com](mailto:eoftoro@gmail.com)  
 📂 [Project Repository](https://github.com/drericflores/crawlten)
-
-readme_path = Path("/mnt/data/README.md")
-readme_path.write_text(readme_content.strip())
-readme_path.name
