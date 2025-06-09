@@ -1,6 +1,9 @@
 """
-spider10.py - Restored & Enhanced Intelligent Web Crawler with GUI
-- Fully restored all functionality from spider6 & spider7
+By: Dr Eric Oliver FLores
+June 9, 2025
+A conversion from my C++ CLI Tool to Python with added GUI
+crawlten10.py - Restored & Enhanced Intelligent Web Crawler with GUI
+- Fully restored all functionality from crawlten6 & crawlten7
 - Retains autonomous crawl, pattern-based search, ethical crawling
 - Adds FTP/HTML toggle, complete GUI, MIME-type resilience, no-overwrite
 """
@@ -18,8 +21,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 
 MAX_DEPTH = 2
-USER_AGENT = "Spider10Bot/1.0"
-VISITED_CACHE = "spider_memory.json"
+USER_AGENT = "crawlten10Bot/1.0"
+VISITED_CACHE = "crawlten_memory.json"
 SCORE_KEYWORDS = ["downloads", "release", "docs", "manual", "dataset"]
 
 if os.path.exists(VISITED_CACHE):
@@ -69,10 +72,10 @@ def duckduckgo_search(query, max_results=5):
     except:
         return []
 
-class SpiderGUI:
+class crawltenGUI:
     def __init__(self, master):
         self.master = master
-        master.title("Spider10 - Fully Intelligent Crawler")
+        master.title("crawlten10 - Fully Intelligent Crawler")
 
         self.file_types = {
             "PDF": tk.BooleanVar(value=True),
@@ -222,6 +225,5 @@ class SpiderGUI:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = SpiderGUI(root)
+    app = crawltenGUI(root)
     root.mainloop()
-
