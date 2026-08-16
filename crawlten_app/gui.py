@@ -77,6 +77,8 @@ class CrawlTenGUI:
         self.stop_button.pack(side="left", padx=6)
         ttk.Button(controls, text="Clear results", command=self.clear).pack(
             side="left", padx=6)
+        ttk.Button(controls, text="Quit", command=self.quit).pack(
+            side="left", padx=6)
         ttk.Button(controls, text="Open selected", command=self.open_selected).pack(
             side="right", padx=6)
         ttk.Button(controls, text="Download selected",
@@ -213,6 +215,10 @@ class CrawlTenGUI:
         if self.active_service is not None:
             self.active_service.cancel()
         self.status.config(text="Stopping safely…")
+
+    def quit(self):
+        self.stop()
+        self.root.after(100, self.root.destroy)
 
     @staticmethod
     def _select_all(event):

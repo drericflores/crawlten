@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import threading
+import xml.etree.ElementTree as ET
 from collections import deque
 from collections import Counter
 from dataclasses import dataclass
@@ -54,7 +55,7 @@ class DiscoveryService:
         if not query.strip() and not website.strip():
             raise ValueError("Enter a research query or website.")
         candidates = (
-            self._discover_website(website, query)
+            self._discover_website(self._coerce_url(website), query)
             if website.strip()
             else self._search_web(query)
         )
@@ -64,7 +65,7 @@ class DiscoveryService:
             if self.stop_event.is_set() or len(results) >= self.max_results:
                 break
             url = self._unwrap_search_url(url)
-            if not url or url in seen or not self._wanted(url):
+            if not url or url in seen:
                 continue
             seen.add(url)
             result = self._inspect(title, url)
@@ -77,16 +78,39 @@ class DiscoveryService:
         return results
 
     def _search_web(self, query: str):
-        self.emit("status", {"message": "Searching the public web index…"})
+        self.emit("status", {"message": "Searching multiple public web indexes…"})
         extensions = " OR ".join(f"filetype:{item}" for item in sorted(self.file_types))
-        url = f"https://html.duckduckgo.com/html/?q={quote_plus(query + ' ' + extensions)}"
-        response = self.session.get(url, timeout=(5, 8))
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, "html.parser")
-        return [
-            (anchor.get_text(" ", strip=True) or "Untitled result", anchor["href"])
-            for anchor in soup.select("a.result__a[href]")
-        ]
+        search_text = query + " " + extensions
+        results: list[tuple[str, str]] = []
+        failures = []
+        try:
+            url = f"https://html.duckduckgo.com/html/?q={quote_plus(search_text)}"
+            response = self.session.get(url, timeout=(5, 8))
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, "html.parser")
+            results.extend(
+                (anchor.get_text(" ", strip=True) or "Untitled result", anchor["href"])
+                for anchor in soup.select("a.result__a[href]")
+            )
+        except requests.RequestException as exc:
+            failures.append(f"DuckDuckGo: {exc}")
+        if not self.stop_event.is_set():
+            try:
+                url = f"https://www.bing.com/search?format=rss&q={quote_plus(search_text)}"
+                response = self.session.get(url, timeout=(5, 8))
+                response.raise_for_status()
+                root = ET.fromstring(response.content)
+                for item in root.findall(".//item"):
+                    title = item.findtext("title") or "Untitled result"
+                    link = item.findtext("link")
+                    if link:
+                        results.append((title, link))
+            except (requests.RequestException, ET.ParseError) as exc:
+                failures.append(f"Bing: {exc}")
+        if not results:
+            detail = "; ".join(failures) or "providers returned no matches"
+            raise RuntimeError(f"Public search providers returned no results ({detail})")
+        return list(dict.fromkeys(results))
 
     def _discover_website(self, website: str, query: str):
         seed = normalize_url(website, website)
@@ -124,6 +148,13 @@ class DiscoveryService:
             if "html" not in response.headers.get("Content-Type", "").lower():
                 continue
             soup = BeautifulSoup(response.text, "html.parser")
+            page_title = (
+                soup.title.get_text(" ", strip=True)
+                if soup.title else page
+            )
+            page_text = soup.get_text(" ", strip=True).lower()
+            if not terms or any(term in page_text for term in terms):
+                found.append((page_title, page))
             for anchor in soup.find_all("a", href=True):
                 if self.stop_event.is_set():
                     break
@@ -168,7 +199,7 @@ class DiscoveryService:
         return SearchResult(
             title=title.strip() or Path(urlparse(url).path).name or "Untitled document",
             url=url,
-            file_type=suffix.upper() or "FILE",
+            file_type=suffix.upper() if suffix in self.file_types else "WEB",
             source=urlparse(url).netloc,
             size=size,
             access=access,
@@ -176,6 +207,13 @@ class DiscoveryService:
 
     def _wanted(self, url: str) -> bool:
         return Path(urlparse(url).path.lower()).suffix.lstrip(".") in self.file_types
+
+    @staticmethod
+    def _coerce_url(value: str) -> str:
+        value = value.strip()
+        if value and "://" not in value:
+            value = "https://" + value
+        return value
 
     @staticmethod
     def _unwrap_search_url(url: str) -> str | None:
@@ -206,6 +244,13 @@ def download_selected(results: list[SearchResult], directory: Path,
     for result in results:
         if stop_event and stop_event.is_set():
             break
+        if result.file_type == "WEB":
+            crawler.stats.skipped += 1
+            if emit:
+                emit("status", {
+                    "message": f"Open webpage results in the browser: {result.title}"
+                })
+            continue
         if result.access == "Blocked by robots.txt":
             continue
         crawler._download(result.url)

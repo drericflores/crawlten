@@ -22,3 +22,9 @@ def test_document_type_filtering():
     service = DiscoveryService(frozenset({"pdf", "docx"}))
     assert service._wanted("https://example.org/manual.PDF?edition=2")
     assert not service._wanted("https://example.org/index.html")
+
+
+def test_bare_domain_is_accepted():
+    assert DiscoveryService._coerce_url("example.org/docs") == (
+        "https://example.org/docs"
+    )
