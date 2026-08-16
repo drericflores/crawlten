@@ -63,3 +63,4 @@ dmypy.json
 # CrawlTen project state and memory files
 crawlten_memory.json
 downloads/
+*.part
