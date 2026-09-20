@@ -34,3 +34,6 @@ The Spider Project exemplifies how intelligent crawling, ethical standards, and 
 **Contact:** Dr. Eric O. Flores  
 📧 [eoftoro@gmail.com](mailto:eoftoro@gmail.com)  
 📂 [Project Repository](https://github.com/drericflores/crawlten)
+
+
+If you enjoy this application and would like to support its development, donations are welcome via Zelle to eoftoro@gmail.com.
